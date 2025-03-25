@@ -1,11 +1,11 @@
 resource "aws_cloudwatch_log_metric_filter" "info_log_filter" {
   name           = "InfoLogFilter"
   log_group_name = aws_cloudwatch_log_group.http_api.name
-  pattern        = "INFO"
+  pattern        = "INFO"  #not sure why "[INFO]" cannot work
   
   metric_transformation {
     name      = "InfoLogCount"
-    namespace = "Custom/Logs"
+    namespace = "${local.name_prefix}/Logs"
     value     = "1"
   }
 }
@@ -15,7 +15,7 @@ resource "aws_cloudwatch_metric_alarm" "info_log_alarm" {
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = 1
   metric_name               = "InfoLogCount"
-  namespace                 = "Custom/Logs"
+  namespace                 = "${local.name_prefix}/Logs"
   period                    = 60
   statistic                 = "Sum"
   threshold                 = 10
@@ -25,7 +25,7 @@ resource "aws_cloudwatch_metric_alarm" "info_log_alarm" {
 }
 
 resource "aws_sns_topic" "email_alert" {
-  name = "log-alerts"
+  name = "sns-${local.name_prefix}-info-topic"
 }
 
 resource "aws_sns_topic_subscription" "email_subscription" {
